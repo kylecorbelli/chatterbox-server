@@ -12,6 +12,16 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
+var results = [];
+
+var Message = function(username, message, room) {
+  this.username = username;
+  this.message = message;
+  this.room = room;
+  this.timeStamp = new Date();
+};
+
+
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -27,19 +37,65 @@ var requestHandler = function(request, response) {
   // Adding more logging to your server can be an easy way to get passive
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
+
   console.log("Serving request type " + request.method + " for url " + request.url);
 
   // The outgoing status.
   var statusCode = 200;
+  var headers = defaultCorsHeaders;
+  headers['Content-Type'] = "application/json";
+
+  if (request.method === 'GET') {
+    console.log('GET');
+    console.log('URL ', request.url);
+    // if request.method === 'get'
+      // then do this
+    if (request.url === '/log') {
+      statusCode = 200;
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify({results: results}));
+    } else if (request.url === '/classes/messages') {
+      // do stuff... return all previous messages
+      // statusCode = 200;
+      // response.writeHead(statusCode, headers);
+      // response.end(JSON.stringify({results: results}));
+    } else {
+      statusCode = 404;
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify({results: results}));
+    }
+
+  } else if (request.method === 'POST'){
+    statusCode = 201;
+      if ( request.url === '/classes/messages' ) {
+        //do this
+
+      } else if (request.url === '/send') {
+        // do this
+        results.push(new Message('NuggetPants', 'Hi there', 'the chill lounge'));
+        response.writeHead(statusCode, headers);
+        response.end(JSON.stringify({results: results}));
+      } else {
+        statusCode = 404;
+        response.writeHead(statusCode, headers);
+        response.end();
+      }
+      console.log('POST');
+      console.log('URL ', request.url);
+    // put results array
+      //
+  } else {
+    return '404';
+  }
 
   // See the note below about CORS headers.
-  var headers = defaultCorsHeaders;
+  
 
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = "text/plain";
+  
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
@@ -52,8 +108,10 @@ var requestHandler = function(request, response) {
   //
   // Calling .end "flushes" the response's internal buffer, forcing
   // node to actually send all the data over to the client.
-  response.end("Hello, World!");
+  response.end(JSON.stringify({results: results}));
 };
+
+module.exports = requestHandler;
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
 // This code allows this server to talk to websites that
