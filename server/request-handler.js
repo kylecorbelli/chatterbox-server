@@ -20,7 +20,7 @@ var Message = function(username, message, roomname) {
   this.username = username;
   this.message = message;
   this.roomname = roomname;
-  this.timeStamp = new Date();
+  // this.timeStamp = new Drate();
 };
 
 // results.push(new Message('TestDude', 'sample', 'cabinet'));
@@ -49,10 +49,14 @@ var requestHandler = function(request, response) {
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = "application/json";
 
-  if (request.method === 'GET') {
+  if (request.method === 'OPTIONS') {
     statusCode = 200;
-    console.log('GET');
-    console.log('URL ', request.url);
+    response.writeHead(statusCode, headers);
+    response.end(JSON.stringify({results: results}));
+  } else if (request.method === 'GET') {
+    statusCode = 200;
+    // console.log('GET');
+    // console.log('URL ', request.url);
     // if request.method === 'get'
       // then do this
     if (request.url === '/log') {
@@ -65,13 +69,13 @@ var requestHandler = function(request, response) {
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify({results: results}));
     } else if (request.url === '/classes/room1') {
-      console.log('just got a request for /classes/room1');
+      // console.log('just got a request for /classes/room1');
       statusCode = 200;
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify({results: results}));
     } 
     else {
-      console.log('=================================GOT HERE===================');
+      // console.log('=================================GOT HERE===================');
       statusCode = 404;
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify({results: results}));
@@ -137,8 +141,8 @@ var requestHandler = function(request, response) {
         response.writeHead(statusCode, headers);
         response.end();
       }
-      console.log('POST');
-      console.log('URL ', request.url);
+      // console.log('POST');
+      // console.log('URL ', request.url);
     // put results array
       //
   }
