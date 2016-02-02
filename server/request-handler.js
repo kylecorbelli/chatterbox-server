@@ -12,8 +12,6 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
-var qs = require('querystring');
-
 var results = [];
 
 var Message = function(username, message, roomname) {
@@ -45,8 +43,7 @@ var requestHandler = function(request, response) {
       body += chunk.toString();
     });
     req.on('end', function() {
-      parsedBody = qs.parse(body);
-      data = JSON.parse(Object.keys(parsedBody)[0]);
+      data = JSON.parse(body);
       results.unshift(new Message(data.username, data.message, data.roomname));
       writer();
     });
