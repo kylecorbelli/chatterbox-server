@@ -50,6 +50,7 @@ var requestHandler = function(request, response) {
   headers['Content-Type'] = "application/json";
 
   if (request.method === 'GET') {
+    statusCode = 200;
     console.log('GET');
     console.log('URL ', request.url);
     // if request.method === 'get'
@@ -63,7 +64,14 @@ var requestHandler = function(request, response) {
       statusCode = 200;
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify({results: results}));
-    } else {
+    } else if (request.url === '/classes/room1') {
+      console.log('just got a request for /classes/room1');
+      statusCode = 200;
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify({results: results}));
+    } 
+    else {
+      console.log('=================================GOT HERE===================');
       statusCode = 404;
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify({results: results}));
@@ -87,8 +95,28 @@ var requestHandler = function(request, response) {
           response.end(JSON.stringify({results: results}));
         });
         
+      } else if (request.url === '/classes/room1') {
+        // statusCode = 201;
+        // response.writeHead(statusCode, headers);
+        // response.end(JSON.stringify({results: results}));
+        // do this
+        statusCode = 201;
+        var body = '';
+        var parsedBody;
+        var data;
+        request.on('data', function(chunk) {
+          body += chunk.toString();
+        });
+        request.on('end', function() {
+          parsedBody = qs.parse(body);
+          data = JSON.parse(Object.keys(parsedBody)[0]);
+          results.push(new Message(data.username, data.message, data.roomname));
+          response.writeHead(statusCode, headers);
+          response.end(JSON.stringify({results: results}));
+        });
       } else if (request.url === '/send') {
         // do this
+        statusCode = 201;
         var body = '';
         var parsedBody;
         var data;
@@ -103,7 +131,8 @@ var requestHandler = function(request, response) {
           response.end(JSON.stringify({results: results}));
         });
         
-      } else {
+      } 
+      else {
         statusCode = 404;
         response.writeHead(statusCode, headers);
         response.end();
@@ -112,8 +141,6 @@ var requestHandler = function(request, response) {
       console.log('URL ', request.url);
     // put results array
       //
-  } else {
-    return '404';
   }
 
   // See the note below about CORS headers.
@@ -139,7 +166,7 @@ var requestHandler = function(request, response) {
   response.end(JSON.stringify({results: results}));
 };
 
-module.exports = requestHandler;
+module.exports.requestHandler = requestHandler;
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
 // This code allows this server to talk to websites that
