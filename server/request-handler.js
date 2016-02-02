@@ -12,14 +12,18 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
+var qs = require('querystring');
+
 var results = [];
 
-var Message = function(username, message, room) {
+var Message = function(username, message, roomname) {
   this.username = username;
   this.message = message;
-  this.room = room;
+  this.roomname = roomname;
   this.timeStamp = new Date();
 };
+
+// results.push(new Message('TestDude', 'sample', 'cabinet'));
 
 
 var requestHandler = function(request, response) {
@@ -56,9 +60,9 @@ var requestHandler = function(request, response) {
       response.end(JSON.stringify({results: results}));
     } else if (request.url === '/classes/messages') {
       // do stuff... return all previous messages
-      // statusCode = 200;
-      // response.writeHead(statusCode, headers);
-      // response.end(JSON.stringify({results: results}));
+      statusCode = 200;
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify({results: results}));
     } else {
       statusCode = 404;
       response.writeHead(statusCode, headers);
@@ -68,13 +72,37 @@ var requestHandler = function(request, response) {
   } else if (request.method === 'POST'){
     statusCode = 201;
       if ( request.url === '/classes/messages' ) {
-        //do this
-
+        // do this
+        var body = '';
+        var parsedBody;
+        var data;
+        request.on('data', function(chunk) {
+          body += chunk.toString();
+        });
+        request.on('end', function() {
+          parsedBody = qs.parse(body);
+          data = JSON.parse(Object.keys(parsedBody)[0]);
+          results.push(new Message(data.username, data.message, data.roomname));
+          response.writeHead(statusCode, headers);
+          response.end(JSON.stringify({results: results}));
+        });
+        
       } else if (request.url === '/send') {
         // do this
-        results.push(new Message('NuggetPants', 'Hi there', 'the chill lounge'));
-        response.writeHead(statusCode, headers);
-        response.end(JSON.stringify({results: results}));
+        var body = '';
+        var parsedBody;
+        var data;
+        request.on('data', function(chunk) {
+          body += chunk.toString();
+        });
+        request.on('end', function() {
+          parsedBody = qs.parse(body);
+          data = JSON.parse(Object.keys(parsedBody)[0]);
+          results.push(new Message(data.username, data.message, data.roomname));
+          response.writeHead(statusCode, headers);
+          response.end(JSON.stringify({results: results}));
+        });
+        
       } else {
         statusCode = 404;
         response.writeHead(statusCode, headers);
