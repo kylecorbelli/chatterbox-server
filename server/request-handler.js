@@ -49,45 +49,34 @@ var requestHandler = function(request, response) {
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = "application/json";
 
-  if (request.method === 'OPTIONS') {
-    statusCode = 200;
+  var writer = function (  ) {
     response.writeHead(statusCode, headers);
     response.end(JSON.stringify({results: results}));
+  }
+
+  if (request.method === 'OPTIONS') {
+    writer(statusCode)
   } else if (request.method === 'GET') {
-    statusCode = 200;
-    // console.log('GET');
-    // console.log('URL ', request.url);
-    // if request.method === 'get'
-      // then do this
     if (request.url === '/log') {
-      statusCode = 200;
-      response.writeHead(statusCode, headers);
-      response.end(JSON.stringify({results: results}));
+      writer()
     } else if (request.url === '/classes/messages') {
       // do stuff... return all previous messages
-      statusCode = 200;
-      response.writeHead(statusCode, headers);
-      response.end(JSON.stringify({results: results}));
+      writer(statusCode)
     } else if (request.url === '/classes/room1') {
       // console.log('just got a request for /classes/room1');
-      statusCode = 200;
-      response.writeHead(statusCode, headers);
-      response.end(JSON.stringify({results: results}));
-    } 
+      writer();
+    }
     else {
       // console.log('=================================GOT HERE===================');
       statusCode = 404;
-      response.writeHead(statusCode, headers);
-      response.end(JSON.stringify({results: results}));
+      writer()
     }
 
   } else if (request.method === 'POST'){
     statusCode = 201;
+    var body = '', parsedBody, data;
+
       if ( request.url === '/classes/messages' ) {
-        // do this
-        var body = '';
-        var parsedBody;
-        var data;
         request.on('data', function(chunk) {
           body += chunk.toString();
         });
@@ -95,19 +84,10 @@ var requestHandler = function(request, response) {
           parsedBody = qs.parse(body);
           data = JSON.parse(Object.keys(parsedBody)[0]);
           results.push(new Message(data.username, data.message, data.roomname));
-          response.writeHead(statusCode, headers);
-          response.end(JSON.stringify({results: results}));
+          writer();
         });
-        
+
       } else if (request.url === '/classes/room1') {
-        // statusCode = 201;
-        // response.writeHead(statusCode, headers);
-        // response.end(JSON.stringify({results: results}));
-        // do this
-        statusCode = 201;
-        var body = '';
-        var parsedBody;
-        var data;
         request.on('data', function(chunk) {
           body += chunk.toString();
         });
@@ -115,15 +95,10 @@ var requestHandler = function(request, response) {
           parsedBody = qs.parse(body);
           data = JSON.parse(Object.keys(parsedBody)[0]);
           results.push(new Message(data.username, data.message, data.roomname));
-          response.writeHead(statusCode, headers);
-          response.end(JSON.stringify({results: results}));
+          writer();
         });
       } else if (request.url === '/send') {
         // do this
-        statusCode = 201;
-        var body = '';
-        var parsedBody;
-        var data;
         request.on('data', function(chunk) {
           body += chunk.toString();
         });
@@ -131,11 +106,10 @@ var requestHandler = function(request, response) {
           parsedBody = qs.parse(body);
           data = JSON.parse(Object.keys(parsedBody)[0]);
           results.push(new Message(data.username, data.message, data.roomname));
-          response.writeHead(statusCode, headers);
-          response.end(JSON.stringify({results: results}));
+          writer();
         });
-        
-      } 
+
+      }
       else {
         statusCode = 404;
         response.writeHead(statusCode, headers);
@@ -148,13 +122,13 @@ var requestHandler = function(request, response) {
   }
 
   // See the note below about CORS headers.
-  
+
 
   // Tell the client we are sending them plain text.
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  
+
 
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
@@ -187,4 +161,3 @@ var defaultCorsHeaders = {
   "access-control-allow-headers": "content-type, accept",
   "access-control-max-age": 10 // Seconds.
 };
-
