@@ -47,7 +47,7 @@ var requestHandler = function(request, response) {
     req.on('end', function() {
       parsedBody = qs.parse(body);
       data = JSON.parse(Object.keys(parsedBody)[0]);
-      results.push(new Message(data.username, data.message, data.roomname));
+      results.unshift(new Message(data.username, data.message, data.roomname));
       writer();
     });
   };

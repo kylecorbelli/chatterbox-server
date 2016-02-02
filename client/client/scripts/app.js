@@ -76,7 +76,7 @@ var app = {
           app.populateMessages(data.results, animate);
 
           // Store the ID of the most recent message
-          app.lastMessageId = mostRecentMessage.objectId;
+          // app.lastMessageId = mostRecentMessage.objectId;
         }
       },
       error: function(data) {
