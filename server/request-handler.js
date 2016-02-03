@@ -12,6 +12,9 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 
+var fs = require('fs');
+var urlUtil = require('url');
+
 var results = [];
 
 var Message = function(username, message, roomname) {
@@ -22,7 +25,8 @@ var Message = function(username, message, roomname) {
 
 var requestHandler = function(request, response) {
 
-  var url = request.url;
+  // var url = request.url;
+  var url = urlUtil.parse(request.url).pathname;
   var method = request.method;
 
   console.log("Serving request type " + method + " for url " + url);
@@ -49,10 +53,38 @@ var requestHandler = function(request, response) {
     });
   };
 
+  var serveStaticFile = function(res, pathToFile, contentType) {
+    // var rs = fs.createReadStream(pathToFile);
+    // rs.pipe(res);
+    fs.readFile(pathToFile, function(err, data) {
+      if (err) {
+        statusCode = 500;
+        res.end();
+      } else {
+        statusCode = 200;
+        headers['Content-Type'] = contentType;
+        res.end(data);
+      }
+    });
+  };
+
   if (method === 'OPTIONS') {
     writer();
   } else if (method === 'GET') {
-    if (url === '/log'
+    if (url === '/') {
+      serveStaticFile(response, '../client/client/index.html', 'text/html');
+    } else if (url === '/styles/styles.css') {
+      serveStaticFile(response, '../client/client/styles/styles.css', 'stylesheet');
+    } else if (url === '/scripts/app.js') {
+      console.log('fired');
+      serveStaticFile(response, '../client/client/scripts/app.js', 'text/javascript');
+    } else if (url === '/bower_components/jquery/dist/jquery.js') {
+      serveStaticFile(response, '../client/client/bower_components/jquery/dist/jquery.js', 'text/javascript');
+    } else if (url === '/images/spiffygif_46x46.gif') {
+      serveStaticFile(response, '../client/client/images/spiffygif_46x46.gif', 'image/gif');
+    } else if (url === '/env/config.js') {
+      serveStaticFile(response, '../client/client/env/config.js', 'text/javascript');
+    } else if (url === '/log'
     || url === '/classes/messages'
     || url === '/classes/room1') {
       writer();
